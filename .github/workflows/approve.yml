@@ -1,0 +1,85 @@
+name: Auto Add Approved Run
+on:
+  repository_dispatch:
+    types: [approve_run]
+
+jobs:
+  add_record:
+    runs-on: ubuntu-latest
+    # FIXAT: Ger roboten uttrycklig tillåtelse att skriva till dina datafiler
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Update JSON File
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            const payload = context.payload.client_payload;
+
+            // Rensar banans namn, gör om till små bokstäver och ersätter mellanslag med understreck
+            let levelName = payload.level.toLowerCase().trim().replace(/ /g, "_");
+            // Om namnet av misstag slutar på .json (t.ex. från Google Sheets), ta bort det
+            if (levelName.endsWith('.json')) {
+              levelName = levelName.slice(0, -5);
+            }
+
+            // Letar i mappen 'data' efter filen
+            const filePath = path.join('data', `${levelName}.json`); 
+
+            console.log(`FÖRSÖKER ÖPPNA FILEN: ${filePath}`);
+
+            if (!fs.existsSync(filePath)) {
+              throw new Error(`Hittade inte filen "${filePath}". Kontrollera stavningen i Google Sheets!`);
+            }
+
+            let levelData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+
+            if (!levelData.records) {
+              levelData.records = [];
+            }
+
+            // Skapar det nya rekordet med alla dina fält
+            const newRecord = {
+              user: payload.player,
+              percent: payload.percent,
+              link: payload.video
+            };
+
+            // Lägg till Hz om det skickades med
+            if (payload.hz) {
+              newRecord.hz = payload.hz.toString().trim();
+            }
+
+            // Lägg bara till datum om det skickades med från Google Sheets
+            if (payload.date) {
+              newRecord.date = payload.date.toString().trim();
+            }
+
+            // Lägg bara till spelläge om det skickades med
+            if (payload.mode) {
+              newRecord.mode = payload.mode.toString().trim().toLowerCase();
+            }
+
+            // Spara det nya rekordet i listan
+            levelData.records.push(newRecord);
+
+            fs.writeFileSync(filePath, JSON.stringify(levelData, null, 2), 'utf8');
+
+      - name: Commit and Push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Auto-added record for ${{ github.event.client_payload.player }} on ${{ github.event.client_payload.level }}"
+          git push

@@ -1,0 +1,158 @@
+:root {
+    --color-background: white;
+    --color-on-background: black;
+    --color-background-hover: #eee;
+    --color-on-background-hover: black;
+    --color-primary: #0066ff;
+    --color-on-primary: white;
+    --color-error: #de0000;
+    --color-on-error: white;
+}
+
+main.dark,
+header.dark {
+    color-scheme: dark;
+    --color-background: #1c1b1f;
+    --color-on-background: white;
+    --color-background-hover: #27262c;
+    --color-on-background-hover: white;
+    --color-primary: #283593;
+    --color-primary-disabled: #1f213c;
+    --color-on-primary: white;
+    --color-error: #de0000;
+    --color-on-error: white;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
+
+header,
+main {
+    background-color: var(--color-background);
+    color: var(--color-on-background);
+    display: grid;
+    grid-template-columns: minmax(16rem, 1fr) minmax(16rem, 2fr) minmax(
+            16em,
+            1fr
+        );
+    column-gap: 2rem;
+}
+
+header {
+    display: flex;
+    padding-inline: calc(25vw - 10rem);
+    height: 4.5rem; /* Ökat höjden lite så att v1.0.0 får plats på höjden */
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
+}
+
+@media screen and (min-width: 1366px) {
+    header {
+        display: flex !important; /* Tvingar flex-layout */
+        justify-content: space-between !important; /* Separerar vänster och höger sida */
+        align-items: center !important;
+        padding-inline: 4rem !important; 
+    }
+}
+
+header .logo {
+    justify-self: start !important;
+    align-self: center !important;
+    display: flex !important;
+    align-items: center !important; /* Centrerar texten och v1.0.0 snyggt i höjdled */
+    gap: 1rem;
+    white-space: nowrap !important;
+}
+
+/* FIXAT: Tvingar loggans text och versionstext att stå kvar */
+header .logo h2, header .logo p {
+    display: inline-block !important;
+    white-space: nowrap !important;
+}
+
+header .nav {
+    display: flex !important;
+    align-items: center !important;
+    column-gap: 2rem !important;
+    white-space: nowrap !important;
+}
+
+/* FIXAT: Öppnar upp utrymmet runt Discord- och Submit-knappen så att inget radbryts */
+header .nav__actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 1.5rem !important; /* Ger snyggt mellanrum mellan ikonerna */
+    white-space: nowrap !important;
+}
+
+/* FIXAT: Tvingar själva Submit-knappen att ALDRIG dela på sig till två rader */
+header .nav__cta {
+    white-space: nowrap !important;
+    display: inline-block !important;
+}
+
+main {
+    height: 0;
+    flex: 1;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr);
+    column-gap: 2rem;
+}
+main > div {
+    overflow-y: auto;
+}
+
+.spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    grid-column: span 3;
+}
+
+input[type="checkbox"] {
+    height: 1.25rem;
+    width: 1.25rem;
+    cursor: pointer;
+    margin: 0;
+}
+/* Denna behållare måste ha relative för att rutan ska utgå från videons hörn */
+.video-wrapper {
+    position: relative; 
+    width: 100%;
+}
+
+/* Den kompakta GDDL-kvadraten */
+.gddl-badge {
+    position: absolute;
+    
+    /* ------------------------------------------------------------- */
+    /* JUSTERA POSITIONEN HÄR:                                       */
+    /* Minska/öka 'top' för att flytta rutan uppåt eller nedåt.       */
+    /* Minska/öka 'right' för att flytta rutan till vänster/höger.   */
+    /* ------------------------------------------------------------- */
+    top: -75px;                /* Negativt värde flyttar rutan UPPÅT över videon */
+    right: 0px;                /* 0px sätter den kant i kant med videons högersida */
+    
+    background-color: #ff0000; /* Röd bakgrund */
+    color: #000000;            /* Svart text */
+    font-weight: bold;
+    font-size: 2rem;         
+    width: 50px;               
+    height: 50px;              
+    border-radius: 8px;        
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    z-index: 10;               /* Säkerställer att rutan ligger överst */
+    
+    /* Centrerar siffran inuti kvadraten */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
